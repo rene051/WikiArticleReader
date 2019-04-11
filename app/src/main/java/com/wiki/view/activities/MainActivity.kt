@@ -1,7 +1,8 @@
-package com.wiki
+package com.wiki.view.activities
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import com.wiki.R
 
 class MainActivity : AppCompatActivity() {
 
