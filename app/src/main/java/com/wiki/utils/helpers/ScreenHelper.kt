@@ -7,18 +7,15 @@ import android.widget.RelativeLayout
 
 class ScreenHelper {
 
-
     companion object {
 
-        fun setViewLayoutParams(activity: Activity, view: View, widthPercent: Double, heighPercent: Double) {
+        fun setViewLayoutParams(activity: Activity, view: View, widthPercent: Double, heightPercent: Double) {
             val displayMetrics = DisplayMetrics()
             activity.windowManager.defaultDisplay.getMetrics(displayMetrics)
 
             view.layoutParams = RelativeLayout.LayoutParams(
                 (widthPercent * displayMetrics.widthPixels).toInt(),
-                (heighPercent * displayMetrics.heightPixels).toInt()
-            )
+                (heightPercent * displayMetrics.heightPixels).toInt())
         }
-
     }
 }

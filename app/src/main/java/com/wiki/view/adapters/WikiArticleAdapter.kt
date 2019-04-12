@@ -9,20 +9,12 @@ import com.wiki.data.models.WikiArticleResponseModel
 import com.wiki.utils.helpers.ScreenHelper.Companion.setViewLayoutParams
 import com.wiki.view.holders.WikiArticleViewHolder
 
-class WikiArticleAdapter(
-    private var activity: Activity,
-    private var wikiArticleList: ArrayList<WikiArticleResponseModel.ArticleModel>
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class WikiArticleAdapter(private var activity: Activity,
+    private var wikiArticleList: ArrayList<WikiArticleResponseModel.ArticleModel>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return WikiArticleViewHolder(
-            LayoutInflater.from(activity).inflate(
-                R.layout.item_wiki_random_article,
-                parent,
-                false
-            )
-        )
+        return WikiArticleViewHolder(LayoutInflater.from(activity).inflate(R.layout.item_wiki_random_article, parent, false))
     }
 
     override fun getItemCount(): Int {

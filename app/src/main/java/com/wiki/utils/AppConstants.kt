@@ -1,6 +1,6 @@
 package com.wiki.utils
 
-class AppConstants {
+interface AppConstants {
 
     companion object {
         //URL
