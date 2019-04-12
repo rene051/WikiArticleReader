@@ -8,7 +8,7 @@ interface MainView {
 
     fun onWikiRandomArticleFetchFail()
 
-    fun onWikiArticleDetailsFetchSuccess()
+    fun onWikiArticleDetailsFetchSuccess(response: WikiArticleResponseModel)
 
     fun onWikiArticleDetailsFetchFail()
 }

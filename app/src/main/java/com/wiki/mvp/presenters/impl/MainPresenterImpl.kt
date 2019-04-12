@@ -48,4 +48,23 @@ constructor(private val context: Context, private val mainView: MainView,
                 }
             })
     }
+
+
+    override fun fetchArticleWiki(title: String) {
+        networkApi.getWikiArticleDetail(title)
+            .subscribeOn(subscribeScheduler)
+            .observeOn(observeScheduler)
+            .subscribe(object : SingleObserver<WikiArticleResponseModel> {
+                override fun onSuccess(t: WikiArticleResponseModel) {
+                    mainView.onWikiArticleDetailsFetchSuccess(t)
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                override fun onError(e: Throwable) {
+                    mainView.onWikiArticleDetailsFetchFail()
+                }
+            })    }
 }

@@ -1,10 +1,9 @@
 package com.wiki.view.activities
 
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.PagerSnapHelper
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.SnapHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
+import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
 import com.wiki.R
 import com.wiki.data.models.WikiArticleResponseModel
@@ -49,7 +48,11 @@ class MainActivity : BaseActivity(), MainView {
     private fun setAdapter() {
         wikiAdapter = WikiArticleAdapter(this, wikiList)
 
-        mLayoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        mLayoutManager = LinearLayoutManager(
+            this,
+            LinearLayoutManager.HORIZONTAL,
+            false
+        )
         wikiArticleRecycler.layoutManager = mLayoutManager
         wikiArticleRecycler.adapter = wikiAdapter
         slidesSnapHelper.attachToRecyclerView(wikiArticleRecycler)
@@ -69,7 +72,7 @@ class MainActivity : BaseActivity(), MainView {
 
     }
 
-    override fun onWikiArticleDetailsFetchSuccess() {
+    override fun onWikiArticleDetailsFetchSuccess(response: WikiArticleResponseModel) {
 
     }
 
@@ -79,29 +82,20 @@ class MainActivity : BaseActivity(), MainView {
 
 
     private fun pagination() {
-
         wikiArticleRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
 
-                val totalItemCount = mLayoutManager.itemCount
-                val lastVisibleItemPosition = mLayoutManager.findLastVisibleItemPosition()
-                val myTotalCount = wikiList.size - 1
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    val centerView = slidesSnapHelper.findSnapView(mLayoutManager)
+                    val pos = mLayoutManager.getPosition(centerView!!)
 
-                Log.e("pagination", "totalItem: $totalItemCount")
-                Log.e("pagination", "lastVisibleItemPosition: $lastVisibleItemPosition")
-                Log.e("pagination", "myTotalCount: $myTotalCount")
-                Log.e("pagination", " ")
+                    val item = wikiList[pos]
 
-                if (dx > 0) {
-                    if ((lastVisibleItemPosition >= myTotalCount) && lastVisibleItemPosition > 0
-                        && myTotalCount > 0 && (myTotalCount + 1) <= totalItemCount) {
+                    mainPresenter.fetchArticleWiki(item.title!!)
+
+                    if (pos == wikiList.size - 1) {
                         if (!loading) {
-                            Log.e("pagination", "-------------------------CALLED----------------------------")
-                            Log.e("pagination", "totalItem: $totalItemCount")
-                            Log.e("pagination", "lastVisibleItemPosition: $lastVisibleItemPosition")
-                            Log.e("pagination", "myTotalCount: $myTotalCount")
-                            Log.e("pagination", "-----------------------------------------------------")
                             mainPresenter.fetchRandomWiki()
                             loading = true
                         }

@@ -1,7 +1,7 @@
 package com.wiki.view
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import com.wiki.App
 import com.wiki.di.components.AppComponent
 

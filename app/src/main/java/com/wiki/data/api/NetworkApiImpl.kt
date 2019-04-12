@@ -1,6 +1,7 @@
 package com.wiki.data.api
 
 import com.wiki.data.models.WikiArticleResponseModel
+import com.wiki.utils.AppConstants.Companion.EXTRACT
 import com.wiki.utils.AppConstants.Companion.GRN_LIMIT_VALUE
 import com.wiki.utils.AppConstants.Companion.GRN_NAME_SPACE_VALUE
 import com.wiki.utils.AppConstants.Companion.JSON
@@ -15,5 +16,9 @@ constructor(private val wikiDatabaseApi: WikiDatabaseApi) : NetworkApi {
 
     override fun getWikiRandomArticle(): Single<WikiArticleResponseModel> {
         return wikiDatabaseApi.getWikiRandomArticle(JSON, QUERY, RANDOM, GRN_NAME_SPACE_VALUE, GRN_LIMIT_VALUE)
+    }
+
+    override fun getWikiArticleDetail(title: String): Single<WikiArticleResponseModel> {
+        return wikiDatabaseApi.getWikiArticleDetails(JSON, QUERY, EXTRACT, "", "", title)
     }
 }

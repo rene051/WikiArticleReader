@@ -9,6 +9,7 @@ class WikiArticleResponseModel : Serializable {
     var query: PagesModel? = null
 
     class PagesModel: Serializable {
+        @SerializedName("pages")
         var pages: HashMap<String, ArticleModel>? = null
     }
 
@@ -22,5 +23,8 @@ class WikiArticleResponseModel : Serializable {
 
         @SerializedName("title")
         var title: String? = null
+
+        @SerializedName("extract")
+        var extract: String? = null
     }
 }

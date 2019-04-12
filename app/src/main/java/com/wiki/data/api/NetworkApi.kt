@@ -7,4 +7,5 @@ interface NetworkApi {
 
     fun getWikiRandomArticle() : Single<WikiArticleResponseModel>
 
+    fun getWikiArticleDetail(title: String) : Single<WikiArticleResponseModel>
 }
