@@ -2,6 +2,7 @@ package com.wiki.di.components
 
 import android.app.Application
 import android.content.Context
+import com.wiki.data.api.NetworkApi
 import com.wiki.di.modules.AppModule
 import com.wiki.di.modules.NetModule
 import com.wiki.di.modules.ThreadModule
@@ -20,6 +21,8 @@ interface AppComponent {
     fun inject(app: Application)
 
     fun context(): Context
+
+    fun networkApi(): NetworkApi
 
     @Named(OBSERVE_SCHEDULER)
     fun provideAndroidSchedulersMainThread(): Scheduler

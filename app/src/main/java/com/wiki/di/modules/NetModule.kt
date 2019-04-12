@@ -1,11 +1,13 @@
 package com.wiki.di.modules
 
 import android.content.Context
+import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.wiki.data.api.NetworkApi
 import com.wiki.data.api.NetworkApiImpl
 import com.wiki.data.api.WikiDatabaseApi
-import com.wiki.data.api.WikiDatabaseApi.Companion.BASE_URL
+import com.wiki.utils.AppConstants.Companion.BASE_URL
 import dagger.Module
 import dagger.Provides
 import okhttp3.Cache
@@ -22,6 +24,14 @@ class NetModule {
     @Provides
     @Singleton
     fun provideHttpCache(application: Context): Cache = Cache(application.cacheDir, (10 * 1024 * 1024).toLong())
+
+    @Provides
+    @Singleton
+    fun provideGson(): Gson {
+        val gsonBuilder = GsonBuilder()
+        gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        return gsonBuilder.create()
+    }
 
     @Provides
     @Singleton

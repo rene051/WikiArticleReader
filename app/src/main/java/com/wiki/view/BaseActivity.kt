@@ -13,7 +13,8 @@ abstract class BaseActivity : AppCompatActivity() {
         this.getApplicationComponent()?.inject(this)
     }
 
-    private fun getApplicationComponent(): AppComponent? {
+    protected fun getApplicationComponent(): AppComponent? {
         return (application as App).appComponent
     }
+
 }
