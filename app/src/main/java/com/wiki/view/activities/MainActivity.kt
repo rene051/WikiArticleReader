@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
+import android.view.View
 import com.wiki.R
 import com.wiki.data.models.WikiArticleResponseModel
 import com.wiki.di.components.DaggerMainComponent
@@ -23,9 +24,12 @@ class MainActivity : BaseActivity(), MainView {
 
     private lateinit var mLayoutManager: LinearLayoutManager
     private lateinit var wikiAdapter: WikiArticleAdapter
+    private lateinit var mainWikiItem: WikiArticleResponseModel.ArticleModel
     private var wikiList = ArrayList<WikiArticleResponseModel.ArticleModel>()
+    private var wikiArticleList = ArrayList<WikiArticleResponseModel.ArticleModel>()
     private val slidesSnapHelper = PagerSnapHelper()
     private var loading = false
+    private var initWikiArticleCallDone = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,12 +40,34 @@ class MainActivity : BaseActivity(), MainView {
             .mainModule(MainModule(this))
             .build().inject(this)
 
-        initApiCall()
+        initWikiRandomCall()
         setAdapter()
         pagination()
     }
 
-    private fun initApiCall() {
+    override fun onWikiRandomArticleFetchSuccess(response: WikiArticleResponseModel) {
+        loading = false
+        wikiList.addAll(response.query!!.pages!!.values)
+        wikiAdapter.notifyDataSetChanged()
+
+        fetchFirstArticle()
+    }
+
+    override fun onWikiRandomArticleFetchFail() {
+
+    }
+
+    override fun onWikiArticleDetailsFetchSuccess(response: WikiArticleResponseModel) {
+        hideProgressBar()
+        wikiArticleList.addAll(response.query!!.pages!!.values)
+        setArticleText()
+    }
+
+    override fun onWikiArticleDetailsFetchFail() {
+
+    }
+
+    private fun initWikiRandomCall() {
         mainPresenter.fetchRandomWiki()
     }
 
@@ -59,27 +85,36 @@ class MainActivity : BaseActivity(), MainView {
     }
 
     private fun setArticleText() {
-
+        wikiArticleList.forEach {
+            if (it.pageId == mainWikiItem.pageId) {
+                Log.e("loadArticle", "load for title: " + mainWikiItem.title)
+                wikiArticleDetailText.text = it.extract
+                return
+            }
+        }
+        Log.e("loadArticle", "fetch for title: " + mainWikiItem.title)
+        showProgressBar()
+        mainPresenter.fetchArticleWiki(mainWikiItem.title!!)
     }
 
-    override fun onWikiRandomArticleFetchSuccess(response: WikiArticleResponseModel) {
-        loading = false
-        wikiList.addAll(response.query!!.pages!!.values)
-        wikiAdapter.notifyDataSetChanged()
+    private fun fetchFirstArticle() {
+        if (!initWikiArticleCallDone) {
+            showProgressBar()
+            mainWikiItem = wikiList[0]
+            mainPresenter.fetchArticleWiki(mainWikiItem.title!!)
+            initWikiArticleCallDone = true
+        }
     }
 
-    override fun onWikiRandomArticleFetchFail() {
-
+    private fun showProgressBar() {
+        wikiArticleDetailText.visibility = View.INVISIBLE
+        mainProgressBar.visibility = View.VISIBLE
     }
 
-    override fun onWikiArticleDetailsFetchSuccess(response: WikiArticleResponseModel) {
-
+    private fun hideProgressBar() {
+        mainProgressBar.visibility = View.GONE
+        wikiArticleDetailText.visibility = View.VISIBLE
     }
-
-    override fun onWikiArticleDetailsFetchFail() {
-
-    }
-
 
     private fun pagination() {
         wikiArticleRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -92,10 +127,13 @@ class MainActivity : BaseActivity(), MainView {
 
                     val item = wikiList[pos]
 
-                    mainPresenter.fetchArticleWiki(item.title!!)
+                    mainWikiItem = item
+                    setArticleText()
 
-                    if (pos == wikiList.size - 1) {
+                    Log.e("pagination", "pos: " + (pos + 1) + "/" + wikiList.size)
+                    if (pos + 1 >= wikiList.size - 1) {
                         if (!loading) {
+                            Log.e("pagination", "called: " + (pos + 1) + "/" + (wikiList.size))
                             mainPresenter.fetchRandomWiki()
                             loading = true
                         }
