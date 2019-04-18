@@ -17,4 +17,6 @@ abstract class BaseActivity : AppCompatActivity() {
         return (application as App).appComponent
     }
 
+
+    abstract fun initViews()
 }
