@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import com.wiki.R
 import com.wiki.data.models.WikiArticleResponseModel
 import com.wiki.di.components.DaggerMainComponent
@@ -17,6 +18,7 @@ import com.wiki.view.adapters.WikiArticleAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
+
 class MainActivity : BaseActivity(), MainView {
 
     @Inject
@@ -25,6 +27,8 @@ class MainActivity : BaseActivity(), MainView {
     private lateinit var mLayoutManager: LinearLayoutManager
     private lateinit var wikiAdapter: WikiArticleAdapter
     private lateinit var mainWikiItem: WikiArticleResponseModel.ArticleModel
+    private lateinit var alert: AlertDialog
+    private lateinit var builder: AlertDialog.Builder
     private var wikiList = ArrayList<WikiArticleResponseModel.ArticleModel>()
     private var wikiArticleList = ArrayList<WikiArticleResponseModel.ArticleModel>()
     private val slidesSnapHelper = PagerSnapHelper()
@@ -40,9 +44,27 @@ class MainActivity : BaseActivity(), MainView {
             .mainModule(MainModule(this))
             .build().inject(this)
 
-        initWikiRandomCall()
+        initViews()
+        mainPresenter.fetchRandomWiki()
         setAdapter()
         pagination()
+    }
+
+    override fun initViews() {
+        builder = AlertDialog.Builder(this)
+        builder.setMessage(getString(R.string.internet_error))
+            .setCancelable(false)
+            .setPositiveButton(getString(R.string.try_again)) { dialog, id ->
+                if (initWikiArticleCallDone) {
+                    mainPresenter.fetchArticleWiki(mainWikiItem.title!!)
+                    if(loading) {
+                        mainPresenter.fetchRandomWiki()
+                    }
+                } else {
+                    mainPresenter.fetchRandomWiki()
+                }
+            }
+        alert = builder.create()
     }
 
     override fun onWikiRandomArticleFetchSuccess(response: WikiArticleResponseModel) {
@@ -54,7 +76,7 @@ class MainActivity : BaseActivity(), MainView {
     }
 
     override fun onWikiRandomArticleFetchFail() {
-
+        showErrorMessage()
     }
 
     override fun onWikiArticleDetailsFetchSuccess(response: WikiArticleResponseModel) {
@@ -64,11 +86,20 @@ class MainActivity : BaseActivity(), MainView {
     }
 
     override fun onWikiArticleDetailsFetchFail() {
-
+        showErrorMessage()
     }
 
-    private fun initWikiRandomCall() {
-        mainPresenter.fetchRandomWiki()
+    private fun showErrorMessage() {
+        alert.show()
+    }
+
+    private fun fetchFirstArticle() {
+        if (!initWikiArticleCallDone) {
+            showProgressBar()
+            mainWikiItem = wikiList[0]
+            mainPresenter.fetchArticleWiki(mainWikiItem.title!!)
+            initWikiArticleCallDone = true
+        }
     }
 
     private fun setAdapter() {
@@ -89,21 +120,13 @@ class MainActivity : BaseActivity(), MainView {
             if (it.pageId == mainWikiItem.pageId) {
                 Log.e("loadArticle", "load for title: " + mainWikiItem.title)
                 wikiArticleDetailText.text = it.extract
+                hideProgressBar()
                 return
             }
         }
         Log.e("loadArticle", "fetch for title: " + mainWikiItem.title)
         showProgressBar()
         mainPresenter.fetchArticleWiki(mainWikiItem.title!!)
-    }
-
-    private fun fetchFirstArticle() {
-        if (!initWikiArticleCallDone) {
-            showProgressBar()
-            mainWikiItem = wikiList[0]
-            mainPresenter.fetchArticleWiki(mainWikiItem.title!!)
-            initWikiArticleCallDone = true
-        }
     }
 
     private fun showProgressBar() {
